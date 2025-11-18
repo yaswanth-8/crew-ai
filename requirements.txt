@@ -1,0 +1,6 @@
+crewai[azure-ai-inference]==1.5.0
+streamlit==1.51.0
+crewai-tools==1.5.0
+python-dotenv==1.2.1
+openai>=2.8.0
+litellm>=1.0.0
