@@ -16,14 +16,6 @@ def display_results(intent, answer):
     """
     st.success("Query processed successfully!")
 
-    # Display intent with color coding
-    intent_colors = {
-        "SUMMARY": "",
-        "COMPARE": "",
-        "QNA": ""
-    }
-    st.markdown(f"### Detected Intent: {intent_colors.get(intent, '')} {intent}")
-
     # Display answer
     st.markdown("### Response:")
     st.markdown(answer)
