@@ -1,17 +1,11 @@
 """Query Processor - Orchestrates the crew workflow"""
 
-from crewai import Crew, Process
+from crewai import Crew, Process, Task
 from src.agents import (
     create_intent_classifier,
     create_summary_agent,
     create_compare_agent,
     create_qna_agent
-)
-from src.tasks import (
-    create_intent_task,
-    create_summary_task,
-    create_compare_task,
-    create_qna_task
 )
 from src.config import get_llm
 
@@ -36,11 +30,24 @@ class QueryProcessor:
         Returns:
             tuple: (intent, answer)
         """
-        # Create tasks
-        intent_task = create_intent_task(user_query, self.intent_classifier)
-        summary_task = create_summary_task(user_query, self.summary_agent)
-        compare_task = create_compare_task(user_query, self.compare_agent)
-        qna_task = create_qna_task(user_query, self.qna_agent)
+        # Create a single orchestration task without assigned agent
+        orchestration_task = Task(
+            description=f"""
+            Process the following user query: '{user_query}'
+
+            Follow these steps:
+            1. First, use the Intent Classifier agent to determine the intent (SUMMARY, COMPARE, or QNA)
+            2. Based on the detected intent, delegate to the appropriate specialized agent:
+               - If SUMMARY: Delegate to Summary Specialist
+               - If COMPARE: Delegate to Comparison Analyst
+               - If QNA: Delegate to Question Answering Expert
+            3. Return the final answer from the specialized agent
+
+            Important: Only invoke ONE specialized agent based on the intent.
+            """,
+            expected_output="The answer from the appropriate specialized agent based on query intent",
+            # No agent assigned - manager will orchestrate
+        )
 
         # Create hierarchical crew with manager
         crew = Crew(
@@ -50,7 +57,7 @@ class QueryProcessor:
                 self.compare_agent,
                 self.qna_agent
             ],
-            tasks=[intent_task, summary_task, compare_task, qna_task],
+            tasks=[orchestration_task],
             process=Process.hierarchical,
             verbose=True,
             manager_llm=get_llm()
