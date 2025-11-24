@@ -2,6 +2,7 @@
 
 from crewai import Agent
 from src.config import get_llm
+from src.tools.custom_tool import FileReadTool
 
 
 def create_summary_agent():
@@ -15,5 +16,6 @@ def create_summary_agent():
         and easy-to-understand format.""",
         verbose=True,
         allow_delegation=False,
-        llm=get_llm()
+        llm=get_llm(),
+        tools=[FileReadTool()]
     )
